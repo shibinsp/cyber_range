@@ -1,0 +1,42 @@
+# RetroRange Helm Chart Values
+
+replicaCount: 2
+
+image:
+  backend:
+    repository: retrorange/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: retrorange/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: retrorange.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+postgresql:
+  enabled: true
+  auth:
+    database: range
+    username: postgres
+    password: shibin
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+
+elasticsearch:
+  enabled: true
+  replicas: 3

@@ -1,0 +1,99 @@
+erDiagram
+    USERS ||--o{ SCENARIOS : creates
+    USERS }o--|| ROLES : has
+    SCENARIOS ||--o{ SCENARIO_HISTORY : "has runs"
+    SCENARIO_HISTORY ||--o{ SCORING_RESULTS : generates
+    VIRTUAL_MACHINES }o--|| SCENARIOS : "belongs to"
+    TOPOLOGY ||--o{ VIRTUAL_MACHINES : contains
+    TERRAFORM_JOBS }o--|| SCENARIOS : provisions
+    ANSIBLE_JOBS }o--|| SCENARIOS : configures
+    SCENARIO_HISTORY ||--o{ AUDIT_LOGS : tracks
+
+    USERS {
+        uuid id PK
+        varchar email UK
+        varchar hashed_password
+        int role_id FK
+        timestamp created_at
+        timestamp last_login
+        jsonb metadata
+    }
+
+    ROLES {
+        serial id PK
+        varchar name UK
+        jsonb permissions
+    }
+
+    SCENARIOS {
+        uuid id PK
+        varchar name
+        uuid owner_id FK
+        text description
+        jsonb steps
+        varchar status
+        timestamp created_at
+        timestamp updated_at
+        enum visibility
+    }
+
+    SCENARIO_HISTORY {
+        uuid id PK
+        uuid scenario_id FK
+        uuid run_id
+        timestamp started_at
+        timestamp ended_at
+        jsonb events
+        numeric score
+    }
+
+    VIRTUAL_MACHINES {
+        uuid id PK
+        varchar name
+        varchar type
+        inet ip
+        macaddr mac
+        varchar status
+        timestamp last_seen
+        varchar snapshot_id
+        jsonb metadata
+    }
+
+    TOPOLOGY {
+        uuid id PK
+        varchar name
+        jsonb nodes
+        jsonb edges
+    }
+
+    TERRAFORM_JOBS {
+        uuid id PK
+        varchar status
+        text log
+        timestamp started_at
+        timestamp ended_at
+    }
+
+    ANSIBLE_JOBS {
+        uuid id PK
+        varchar status
+        text log
+        timestamp started_at
+        timestamp ended_at
+    }
+
+    SCORING_RESULTS {
+        uuid id PK
+        uuid scenario_run_id FK
+        jsonb metrics
+        timestamp created_at
+    }
+
+    AUDIT_LOGS {
+        bigserial id PK
+        uuid actor_id FK
+        text action
+        text resource
+        jsonb meta
+        timestamp created_at
+    }

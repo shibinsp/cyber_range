@@ -1,0 +1,81 @@
+.
+├── backend
+│   ├── alembic
+│   │   ├── versions
+│   │   └── env.py
+│   ├── app
+│   │   ├── api
+│   │   ├── core
+│   │   ├── db
+│   │   ├── models
+│   │   ├── schemas
+│   │   ├── services
+│   │   └── workers
+│   ├── scripts
+│   │   └── seed_data.py
+│   ├── tests
+│   │   └── unit
+│   ├── alembic.ini
+│   ├── main.py
+│   ├── pyproject.toml
+│   └── requirements.txt
+├── db
+│   ├── er_diagram.mmd
+│   └── init.sql
+├── docs
+│   ├── architecture.md
+│   ├── deploy.md
+│   └── security.md
+├── frontend
+│   ├── public
+│   ├── src
+│   │   ├── assets
+│   │   ├── {components
+│   │   ├── components
+│   │   ├── features
+│   │   ├── hooks
+│   │   ├── pages
+│   │   ├── services
+│   │   ├── styles
+│   │   ├── types
+│   │   ├── utils
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── index.html
+│   ├── package.json
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── infra
+│   ├── ansible
+│   │   └── playbooks
+│   ├── docker
+│   │   └── backend.Dockerfile
+│   ├── kubernetes
+│   │   └── helm
+│   └── terraform
+│       ├── modules
+│       └── main.tf
+├── replay
+│   └── pcap_processor.py
+├── siem
+│   ├── elasticsearch
+│   │   └── index_templates
+│   ├── kibana
+│   │   └── dashboards
+│   └── logstash
+│       └── pipelines
+├── complete_project_setup.sh
+├── docker-compose.yml
+├── finalize_project.py
+├── generate_project.py
+├── INSTALLATION_COMPLETE.txt
+├── Makefile
+├── manifest.json
+├── overview.md
+├── PROJECT_STRUCTURE.txt
+├── PROJECT_SUMMARY.md
+├── QUICK_START.md
+└── README.md
+
+46 directories, 33 files

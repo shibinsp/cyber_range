@@ -1,0 +1,80 @@
+---
+# Ansible Playbook: Proxmox Node Setup
+# Configures Proxmox VE hosts for RetroRange
+
+- name: Configure Proxmox Nodes for RetroRange
+  hosts: proxmox_nodes
+  become: true
+  vars:
+    retrorange_network: "10.100.0.0/16"
+    storage_pool: "retrorange-vms"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - qemu-kvm
+          - libvirt-daemon-system
+          - bridge-utils
+          - virt-manager
+        state: present
+
+    - name: Create isolated network for scenarios
+      command: >
+        pvesh create /cluster/sdn/vnets
+        --vnet retrorange-isolated
+        --zone localnetwork
+        --tag 100
+      ignore_errors: yes
+
+    - name: Configure storage pool
+      command: >
+        pvesm add dir {{ storage_pool }}
+        --path /mnt/retrorange-vms
+        --content images,rootdir
+      ignore_errors: yes
+
+    - name: Enable IP forwarding
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Configure firewall rules
+      iptables:
+        chain: FORWARD
+        source: "{{ retrorange_network }}"
+        jump: ACCEPT
+        comment: "Allow RetroRange traffic"
+
+    - name: Install Filebeat for log shipping
+      apt:
+        deb: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.11.0-amd64.deb
+        state: present
+
+    - name: Configure Filebeat
+      template:
+        src: ../templates/filebeat.yml.j2
+        dest: /etc/filebeat/filebeat.yml
+      notify: restart filebeat
+
+    - name: Start and enable services
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - libvirtd
+        - filebeat
+
+  handlers:
+    - name: restart filebeat
+      systemd:
+        name: filebeat
+        state: restarted

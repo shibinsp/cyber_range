@@ -1,0 +1,83 @@
+---
+# Ansible Playbook: Install Monitoring Agents on VMs
+# Deploys Sysmon, Filebeat, and other sensors
+
+- name: Install Security Sensors on VMs
+  hosts: range_vms
+  become: true
+
+  tasks:
+    # Linux Hosts
+    - name: Install Auditd (Linux)
+      apt:
+        name: auditd
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Configure Auditd rules
+      copy:
+        dest: /etc/audit/rules.d/retrorange.rules
+        content: |
+          # RetroRange Audit Rules
+          -a always,exit -F arch=b64 -S execve -k process_creation
+          -a always,exit -F arch=b64 -S open,openat -k file_access
+          -a always,exit -F arch=b64 -S connect -k network_connections
+      when: ansible_os_family == "Debian"
+      notify: restart auditd
+
+    - name: Install Filebeat
+      apt:
+        deb: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.11.0-amd64.deb
+      when: ansible_os_family == "Debian"
+
+    - name: Configure Filebeat
+      template:
+        src: ../templates/filebeat-vm.yml.j2
+        dest: /etc/filebeat/filebeat.yml
+      notify: restart filebeat
+
+    # Windows Hosts
+    - name: Install Sysmon (Windows)
+      win_package:
+        path: https://download.sysinternals.com/files/Sysmon.zip
+        product_id: Sysmon
+        state: present
+      when: ansible_os_family == "Windows"
+
+    - name: Configure Sysmon
+      win_copy:
+        src: ../files/sysmonconfig.xml
+        dest: C:\Windows\sysmonconfig.xml
+      when: ansible_os_family == "Windows"
+
+    - name: Start Sysmon
+      win_command: >
+        "C:\Windows\Sysmon64.exe" -accepteula -i C:\Windows\sysmonconfig.xml
+      when: ansible_os_family == "Windows"
+
+    - name: Install Winlogbeat (Windows)
+      win_package:
+        path: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-8.11.0-windows-x86_64.msi
+        state: present
+      when: ansible_os_family == "Windows"
+
+    - name: Start sensors
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - auditd
+        - filebeat
+      when: ansible_os_family == "Debian"
+
+  handlers:
+    - name: restart auditd
+      systemd:
+        name: auditd
+        state: restarted
+
+    - name: restart filebeat
+      systemd:
+        name: filebeat
+        state: restarted

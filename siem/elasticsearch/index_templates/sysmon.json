@@ -1,0 +1,76 @@
+{
+  "index_patterns": ["sysmon-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 3,
+      "number_of_replicas": 1,
+      "index.refresh_interval": "5s"
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "event_id": {
+          "type": "keyword"
+        },
+        "computer_name": {
+          "type": "keyword"
+        },
+        "process_name": {
+          "type": "keyword"
+        },
+        "process_id": {
+          "type": "long"
+        },
+        "parent_process_name": {
+          "type": "keyword"
+        },
+        "parent_process_id": {
+          "type": "long"
+        },
+        "command_line": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword"
+            }
+          }
+        },
+        "user": {
+          "type": "keyword"
+        },
+        "image": {
+          "type": "keyword"
+        },
+        "target_filename": {
+          "type": "keyword"
+        },
+        "source_ip": {
+          "type": "ip"
+        },
+        "destination_ip": {
+          "type": "ip"
+        },
+        "destination_port": {
+          "type": "integer"
+        },
+        "protocol": {
+          "type": "keyword"
+        },
+        "hashes": {
+          "type": "object"
+        },
+        "severity": {
+          "type": "keyword"
+        },
+        "scenario_id": {
+          "type": "keyword"
+        },
+        "vm_id": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
